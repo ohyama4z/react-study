@@ -1,3 +1,9 @@
+# react-study
+
+React の勉強用リポジトリです
+
+かつて Vue で作った[すごろく](https://github.com/ohyama4z/sugoroku)を React で再現するのを最終目標にします
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
