@@ -1,27 +1,9 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import "../index.css";
 
 class Square extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isPlayerPosition: false,
-    };
-  }
-
   render() {
-    return (
-      <button
-        className="sgorokuSquare"
-        onClick={() =>
-          this.setState({ isPlayerPosition: !this.state.isPlayerPosition })
-        }
-      >
-        {this.props.index}
-        {this.state.isPlayerPosition ? "ココ" : null}
-      </button>
-    );
+    return <div className="sugorokuSquare"></div>;
   }
 }
 
@@ -58,11 +40,14 @@ class Form extends React.Component {
     );
   }
 }
-const page = (
-  <div>
-    <Form />
-    <Sheet />
-  </div>
-);
 
-ReactDOM.render(page, document.getElementById("root"));
+export default class Sugoroku extends React.Component {
+  render() {
+    return (
+      <div>
+        <Form />
+        <Sheet />
+      </div>
+    );
+  }
+}
