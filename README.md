@@ -2,7 +2,11 @@
 
 React の勉強用リポジトリです
 
-かつて Vue で作った[すごろく](https://github.com/ohyama4z/sugoroku)を React で再現するのを最終目標にします
+まずは公式の[チュートリアル](https://ja.reactjs.org/tutorial/tutorial.html)を済ませてから
+
+かつて Vue で作った[すごろく](https://github.com/ohyama4z/sugoroku)を React で再現します
+
+あとはこの 2 つを Vue Router でいい感じに遷移する SPA にできればいいなって感じです
 
 # Getting Started with Create React App
 
