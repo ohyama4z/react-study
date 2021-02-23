@@ -6,7 +6,7 @@ React の勉強用リポジトリです
 
 かつて Vue で作った[すごろく](https://github.com/ohyama4z/sugoroku)を React で再現します
 
-あとはこの 2 つを Vue Router でいい感じに遷移する SPA にできればいいなって感じです
+あとはこの 2 つを React Router でいい感じに遷移する SPA にできればいいなって感じです
 
 # Getting Started with Create React App
 
