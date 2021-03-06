@@ -1,65 +1,7 @@
 import React from "react";
 import "./Sugoroku.css";
-
-const Square = (props) => {
-  return (
-    <div className="square">
-      {props.index}
-      <div className="playerName">{props.playerName}</div>
-    </div>
-  );
-};
-
-const Board = (props) => {
-  const renderNSquare = (squareNum) => {
-    return [...Array(squareNum).keys()].map((index) => {
-      const playerName =
-        props.player.position === index ? props.player.name : null;
-      return (
-        <div key={`${index}`}>
-          <Square index={index} playerName={playerName} />
-        </div>
-      );
-    });
-  };
-
-  return <div className="board">{renderNSquare(props.squareNum)}</div>;
-};
-
-const Form = (props) => {
-  const nameForm = props.players.map(({ name }, i) => (
-    <div key={i}>
-      <input
-        type="text"
-        value={name}
-        onChange={(event) => props.handleChangePlayer(i, event)}
-      />
-    </div>
-  ));
-
-  return (
-    <div>
-      <div>
-        コースの長さを入力
-        <div>
-          <input
-            type="number"
-            value={props.boardLength}
-            onChange={(event) => props.handleChangeLength(event)}
-          />
-        </div>
-      </div>
-      <div>
-        名前を入力
-        {nameForm}
-      </div>
-      <div>
-        <button onClick={() => props.addPlayer()}>プレイヤーを追加</button>
-        <button onClick={() => props.startGame()}>ゲームスタート</button>
-      </div>
-    </div>
-  );
-};
+import Board from "./Board";
+import Form from "./Form";
 
 export default class Sugoroku extends React.Component {
   constructor(props) {
@@ -69,85 +11,133 @@ export default class Sugoroku extends React.Component {
         {
           name: "",
           position: 0,
+          goaled: false,
+          rank: null,
         },
       ],
       boardLength: null,
-      isStarted: false,
+      gameStatus: "entering",
+      curPlayerIdx: 0,
+      goaledPlayers: 0,
+      diceIdx: null,
     };
-
-    this.handleChangePlayer = this.handleChangePlayer.bind(this);
-    this.handleChangeLength = this.handleChangeLength.bind(this);
   }
 
   renderBoards() {
     return this.state.players.map((player, i) => {
+      const rank = player.goaled ? <div>{player.rank}位!</div> : null;
       return (
         <div>
           <div>{`${i + 1}: ${player.name}`}</div>
+          {rank}
           <Board squareNum={this.state.boardLength} player={player} />
         </div>
       );
     });
   }
 
-  addPlayer() {
+  addPlayer = () => {
     this.setState({
-      players: [...this.state.players, { name: "", position: 0 }],
+      players: [
+        ...this.state.players,
+        { name: "", position: 0, goaled: false, rank: null },
+      ],
     });
-  }
+  };
 
-  handleChangePlayer(i, event) {
+  handleChangePlayer = (i, event) => {
     const playersCopy = this.state.players.slice();
     playersCopy[i].name = event.target.value;
     this.setState({
       players: playersCopy,
     });
-  }
+  };
 
-  handleChangeLength(event) {
+  handleChangeLength = (event) => {
     this.setState({
       boardLength: Number(event.target.value),
     });
-  }
+  };
 
-  startGame() {
-    this.setState({ isStarted: true });
-  }
+  startGame = () => {
+    this.setState({ isStarted: true, gameStatus: "started" });
+  };
 
-  endGame() {
+  finishGame = () => {
     this.setState({
       players: [
         {
           name: "",
           position: 0,
+          goaled: false,
+          rank: null,
         },
       ],
       boardLength: null,
       isStarted: false,
+      gameStatus: "entering",
+      curPlayerIdx: 0,
+      goaledPlayers: 0,
     });
-  }
+  };
+
+  rollDice = () => {
+    const diceIdx = Math.floor(Math.random() * 6) + 1;
+    const playersCopy = this.state.players.slice();
+    playersCopy[this.state.curPlayerIdx].position =
+      this.state.position + diceIdx;
+
+    if (
+      playersCopy[this.state.curPlayerIdx].position >
+      this.state.boardLength - 1
+    ) {
+      this.goal();
+    }
+
+    this.setState((state) => ({
+      diceIdx: diceIdx,
+      players: playersCopy,
+      curPlayerIdx:
+        state.curPlayerIdx === state.players.length - 1
+          ? 0
+          : state.curPlayerIdx + 1,
+    }));
+  };
 
   render() {
-    if (this.state.isStarted) {
+    if (
+      this.state.gameStatus === "entering" ||
+      this.state.gameStatus === "finished"
+    ) {
       return (
         <div>
-          <button onClick={() => this.endGame()}>ゲームを終える</button>
-          <div className="boards">{this.renderBoards()}</div>
+          <Form
+            handleChangePlayer={this.handleChangePlayer}
+            handleChangeLength={this.handleChangeLength}
+            players={this.state.players}
+            boardLength={this.state.boardLength}
+            addPlayer={this.addPlayer}
+            startGame={this.startGame}
+          />
         </div>
       );
     }
 
-    return (
-      <div>
-        <Form
-          handleChangePlayer={this.handleChangePlayer}
-          handleChangeLength={this.handleChangeLength}
-          players={this.state.players}
-          boardLength={this.state.boardLength}
-          addPlayer={() => this.addPlayer()}
-          startGame={() => this.startGame()}
-        />
-      </div>
-    );
+    if (this.state.gameStatus === "started") {
+      return (
+        <div>
+          <div>
+            <button onClick={this.finishGame}>ゲームを終える</button>
+          </div>
+
+          <div>{this.state.players[0].name}の手番</div>
+          <div>
+            <button onClick={this.rollDice}>サイコロを回す</button>
+          </div>
+          <div>サイコロの目: {this.state.diceIdx}</div>
+          <div className="boards">{this.renderBoards()}</div>
+        </div>
+      );
+    }
   }
 }
