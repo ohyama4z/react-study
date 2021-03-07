@@ -16,7 +16,7 @@ export default function Board(props) {
       const playerName =
         props.player.position === index ? props.player.name : null;
       return (
-        <div key={`${index}`}>
+        <div key={`${props.player.name}_${index}`}>
           <Square index={index} playerName={playerName} />
         </div>
       );

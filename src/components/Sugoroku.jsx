@@ -15,7 +15,7 @@ export default class Sugoroku extends React.Component {
           rank: null,
         },
       ],
-      boardLength: null,
+      boardLength: "",
       gameStatus: "entering",
       curPlayerIdx: 0,
       goaledPlayers: 0,
@@ -27,13 +27,30 @@ export default class Sugoroku extends React.Component {
     return this.state.players.map((player, i) => {
       const rank = player.goaled ? <div>{player.rank}位!</div> : null;
       return (
-        <div>
+        <div key={`${player.name}_${i}`}>
           <div>{`${i + 1}: ${player.name}`}</div>
           {rank}
-          <Board squareNum={this.state.boardLength} player={player} />
+          <Board squareNum={Number(this.state.boardLength)} player={player} />
         </div>
       );
     });
+  }
+
+  renderDice() {
+    return this.state.gameStatus === "started" ? (
+      <div>
+        <div>{this.state.players[this.state.curPlayerIdx].name}の手番</div>
+        <div>
+          <button onClick={this.rollDice}>サイコロを回す</button>
+        </div>
+      </div>
+    ) : null;
+  }
+
+  renderGoalText() {
+    return this.state.gameStatus === "finished" ? (
+      <div className="goalText">ゴーーーーーーーーール!!!!</div>
+    ) : null;
   }
 
   addPlayer = () => {
@@ -55,15 +72,15 @@ export default class Sugoroku extends React.Component {
 
   handleChangeLength = (event) => {
     this.setState({
-      boardLength: Number(event.target.value),
+      boardLength: event.target.value,
     });
   };
 
   startGame = () => {
-    this.setState({ isStarted: true, gameStatus: "started" });
+    this.setState({ gameStatus: "started" });
   };
 
-  finishGame = () => {
+  quitGame = () => {
     this.setState({
       players: [
         {
@@ -73,8 +90,7 @@ export default class Sugoroku extends React.Component {
           rank: null,
         },
       ],
-      boardLength: null,
-      isStarted: false,
+      boardLength: "",
       gameStatus: "entering",
       curPlayerIdx: 0,
       goaledPlayers: 0,
@@ -84,31 +100,67 @@ export default class Sugoroku extends React.Component {
   rollDice = () => {
     const diceIdx = Math.floor(Math.random() * 6) + 1;
     const playersCopy = this.state.players.slice();
-    playersCopy[this.state.curPlayerIdx].position =
-      this.state.position + diceIdx;
 
     if (
-      playersCopy[this.state.curPlayerIdx].position >
-      this.state.boardLength - 1
+      playersCopy[this.state.curPlayerIdx].position + diceIdx >
+      Number(this.state.boardLength) - 1
     ) {
       this.goal();
+      if (this.state.goaledPlayers === this.state.players.length) {
+        this.finishGame();
+        return;
+      }
+    } else {
+      playersCopy[this.state.curPlayerIdx].position += diceIdx;
+      this.setState(() => ({
+        players: playersCopy,
+      }));
     }
+
+    const getNextPlayerIdx = (curIdx) => {
+      let i = curIdx;
+      do {
+        if (i === this.state.players.length - 1) {
+          i = 0;
+          continue;
+        }
+        i++;
+      } while (
+        this.state.players[i].goaled &&
+        this.state.players.length !== this.state.goaledPlayers
+      );
+      return i;
+    };
 
     this.setState((state) => ({
       diceIdx: diceIdx,
+      curPlayerIdx: getNextPlayerIdx(state.curPlayerIdx),
+    }));
+  };
+
+  goal = () => {
+    const playersCopy = this.state.players.slice();
+    playersCopy[this.state.curPlayerIdx] = {
+      name: playersCopy[this.state.curPlayerIdx].name,
+      position: Number(this.state.boardLength) - 1,
+      goaled: true,
+      rank: this.state.goaledPlayers + 1,
+    };
+
+    this.setState((state) => ({
       players: playersCopy,
-      curPlayerIdx:
-        state.curPlayerIdx === state.players.length - 1
-          ? 0
-          : state.curPlayerIdx + 1,
+      goaledPlayers: state.goaledPlayers + 1,
+    }));
+  };
+
+  finishGame = () => {
+    this.setState(() => ({
+      gameStatus: "finished",
     }));
   };
 
   render() {
-    if (
-      this.state.gameStatus === "entering" ||
-      this.state.gameStatus === "finished"
-    ) {
+    if (this.state.gameStatus === "entering") {
       return (
         <div>
           <Form
@@ -123,17 +175,17 @@ export default class Sugoroku extends React.Component {
       );
     }
 
-    if (this.state.gameStatus === "started") {
+    if (
+      this.state.gameStatus === "started" ||
+      this.state.gameStatus === "finished"
+    ) {
       return (
         <div>
           <div>
-            <button onClick={this.finishGame}>ゲームを終える</button>
+            <button onClick={this.quitGame}>ゲームをやめる</button>
           </div>
-
-          <div>{this.state.players[0].name}の手番</div>
-          <div>
-            <button onClick={this.rollDice}>サイコロを回す</button>
-          </div>
+          {this.renderDice()}
+          {this.renderGoalText()}
           <div>サイコロの目: {this.state.diceIdx}</div>
           <div className="boards">{this.renderBoards()}</div>
         </div>

@@ -18,7 +18,7 @@ export default function Form(props) {
         コースの長さを入力
         <div>
           <input
-            type="number"
+            type="text"
             value={props.boardLength}
             onChange={(event) => props.handleChangeLength(event)}
           />
