@@ -1,0 +1,28 @@
+.sugorokuSquare {
+    background: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 20px;
+    width: 100px;
+    height: 100px;
+    border: solid 1px;
+}
+
+.sugorokuBoard {
+    display: flex;
+    flex-direction: column;
+}
+
+.sugorokuBoards {
+    display: flex;
+    flex-direction: row;
+}
+
+.sugorkuPlayerName {
+    margin: auto auto;
+    font-weight: normal;
+}
+
+.sugorokuGoalText {
+    font-size: 200px;
+}

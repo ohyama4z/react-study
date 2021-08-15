@@ -1,18 +1,18 @@
 import React from 'react'
 
 import '../assets/Tutorial.css'
-import Square from './Square'
-import { SquareValue } from '../views/Tutorial'
+import TttSquare from './TttSquare'
+import { SquareValue } from '../views/TicTacToe'
 
 interface BoardProps {
   squares: SquareValue[]
   onClick: (i: number) => void
 }
 
-const Board: React.FC<BoardProps> = (props) => {
+const TttBoard: React.FC<BoardProps> = (props) => {
   const renderSquare = (i: number) => {
     return (
-      <Square
+      <TttSquare
         value={props.squares[i]}
         onClick={() => props.onClick(i)}
       />
@@ -40,4 +40,4 @@ const Board: React.FC<BoardProps> = (props) => {
   )
 }
 
-export default Board
+export default TttBoard
